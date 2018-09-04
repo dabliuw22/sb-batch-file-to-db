@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    username: sa 
+    password:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb
+  h2:
+    console:
+      enabled: true
+  # false para no correr automaticamente batch
+  batch:
+    job:
+      enabled: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: mail@mail.com
+    password: password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
