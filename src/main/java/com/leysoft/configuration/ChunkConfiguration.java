@@ -20,13 +20,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.task.TaskExecutor;
 
+import com.leysoft.batch.chunk.ChunkPersonItemWriter;
 import com.leysoft.mapper.PersonFieldSetMapper;
 import com.leysoft.model.Person;
 
 @Configuration
 public class ChunkConfiguration {
-	
-	private static final String INSERT_PERSON = "insert into persons(name, birthday) values (:name, :birthday)";
 	
 	@Bean(name = {"asyncJobLauncher"})
 	public JobLauncher asyncJobLauncher(JobRepository jobRepository, 
@@ -56,7 +55,7 @@ public class ChunkConfiguration {
 	public ItemWriter<Person> personItemWriter(DataSource dataSource) {
 		JdbcBatchItemWriter<Person> itemWriter = new JdbcBatchItemWriter<>();
 		itemWriter.setDataSource(dataSource);
-		itemWriter.setSql(INSERT_PERSON);
+		itemWriter.setSql(ChunkPersonItemWriter.INSERT_PERSON);
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;
