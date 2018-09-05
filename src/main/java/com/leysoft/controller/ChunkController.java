@@ -1,3 +1,4 @@
+
 package com.leysoft.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,15 +10,21 @@ import org.springframework.web.bind.annotation.RestController;
 import com.leysoft.service.inter.ChunkService;
 
 @RestController
-@RequestMapping(value = {"/chunk"})
+@RequestMapping(
+        value = {
+            "/chunk"
+        })
 public class ChunkController {
 
-	@Autowired
-	private ChunkService chunkService;
-	
-	@GetMapping(value = {"/run"})
-	public ResponseEntity<String> run() {
-		chunkService.run();
-		return ResponseEntity.ok("Ok");
-	}
+    @Autowired
+    private ChunkService chunkService;
+
+    @GetMapping(
+            value = {
+                "/run"
+            })
+    public ResponseEntity<String> run() {
+        chunkService.run();
+        return ResponseEntity.ok("Ok");
+    }
 }

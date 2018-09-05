@@ -1,3 +1,4 @@
+
 package com.leysoft.service.imple;
 
 import org.slf4j.Logger;
@@ -13,23 +14,25 @@ import com.leysoft.service.inter.ChunkService;
 
 @Service
 public class ChunkServiceImp implements ChunkService {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ChunkServiceImp.class);
-	
-	@Autowired
-	@Qualifier(value = "asyncJobLauncher")
-	private JobLauncher jobLauncher;
-	
-	@Autowired
-	@Qualifier(value = "jobChunk")
-	private Job job;
 
-	@Override
-	public void run() {
-		try {
-			jobLauncher.run(job, new JobParameters());
-		} catch (Exception e) {
-			LOGGER.error("error -> {}", e);
-		}
-	}
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChunkServiceImp.class);
+
+    @Autowired
+    @Qualifier(
+            value = "asyncJobLauncher")
+    private JobLauncher jobLauncher;
+
+    @Autowired
+    @Qualifier(
+            value = "jobChunk")
+    private Job job;
+
+    @Override
+    public void run() {
+        try {
+            jobLauncher.run(job, new JobParameters());
+        } catch (Exception e) {
+            LOGGER.error("error -> {}", e);
+        }
+    }
 }
