@@ -7,9 +7,12 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.FlowBuilder;
+import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
@@ -77,16 +80,29 @@ public class ChunkConfiguration {
                 "stepChunk"
             })
     public Step stepChunk(StepBuilderFactory stepBuilderFactory,
-            FlatFileItemReader<Person> personItemReader, ItemWriter<Person> personItemWriter) {
+            FlatFileItemReader<Person> personItemReader,
+            ItemProcessor<Person, Person> personItemProcessor,
+            ItemWriter<Person> personItemWriter) {
         return stepBuilderFactory.get("stepChunk").<Person, Person> chunk(2)
-                .reader(personItemReader).writer(personItemWriter).build();
+                .reader(personItemReader).processor(personItemProcessor).writer(personItemWriter)
+                .build();
+    }
+
+    @Bean(
+            name = {
+                "flowChunk"
+            })
+    public Flow flowChunk(Step stepChunk) {
+        FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flowChunk");
+        flowBuilder.start(stepChunk).end();
+        return flowBuilder.build();
     }
 
     @Bean(
             name = {
                 "jobChunk"
             })
-    public Job jobChunk(JobBuilderFactory jobBuilderFactory, Step step) {
-        return jobBuilderFactory.get("jobChunk").start(step).build();
+    public Job jobChunk(JobBuilderFactory jobBuilderFactory, Flow flowChunk) {
+        return jobBuilderFactory.get("jobChunk").start(flowChunk).end().build();
     }
 }
