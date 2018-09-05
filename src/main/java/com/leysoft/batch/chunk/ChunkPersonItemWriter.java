@@ -21,7 +21,7 @@ public class ChunkPersonItemWriter implements ItemWriter<Person> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChunkPersonItemWriter.class);
 
     public static final String INSERT_PERSON =
-            "insert into persons(name, birthday) values (:name, :birthday)";
+            "insert into persons(name, birthday, age) values (:name, :birthday, :age)";
 
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;
@@ -29,9 +29,10 @@ public class ChunkPersonItemWriter implements ItemWriter<Person> {
     @Override
     public void write(List<? extends Person> items) throws Exception {
         items.forEach(person -> {
-            LOGGER.info("person -> {}", person);
+            LOGGER.info("writer: person -> {}", person);
             SqlParameterSource parameters = new MapSqlParameterSource()
-                    .addValue("name", person.getName()).addValue("birthday", person.getBirthday());
+                    .addValue("name", person.getName()).addValue("birthday", person.getBirthday())
+                    .addValue("age", person.getAge());
             jdbcTemplate.update(INSERT_PERSON, parameters);
         });
     }

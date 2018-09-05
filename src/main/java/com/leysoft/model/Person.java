@@ -12,6 +12,8 @@ public class Person implements Serializable {
 
     private Date birthday;
 
+    private Long age;
+
     public Person() {
     }
 
@@ -36,8 +38,16 @@ public class Person implements Serializable {
         this.birthday = birthday;
     }
 
+    public Long getAge() {
+        return age;
+    }
+
+    public void setAge(Long age) {
+        this.age = age;
+    }
+
     @Override
     public String toString() {
-        return "Person [name=" + name + ", birthday=" + birthday + "]";
+        return "Person [name=" + name + ", birthday=" + birthday + ", age=" + age + "]";
     }
 }
