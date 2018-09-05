@@ -7,8 +7,6 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.job.builder.FlowBuilder;
-import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
@@ -17,19 +15,32 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.validator.ValidatingItemProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.task.TaskExecutor;
 
-import com.leysoft.batch.chunk.ChunkPersonItemWriter;
 import com.leysoft.batch.validator.PersonValidator;
 import com.leysoft.mapper.PersonFieldSetMapper;
 import com.leysoft.model.Person;
+import com.leysoft.util.Util;
 
 @Configuration
 public class ChunkConfiguration {
+
+    @Autowired
+    private StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
+    private JobBuilderFactory jobBuilderFactory;
+
+    @Autowired
+    @Qualifier(
+            value = "chunkPersonItemProcessor")
+    private ItemProcessor<Person, Person> personItemProcessor;
 
     @Bean(
             name = {
@@ -67,41 +78,31 @@ public class ChunkConfiguration {
     public ItemWriter<Person> personItemWriter(DataSource dataSource) {
         JdbcBatchItemWriter<Person> itemWriter = new JdbcBatchItemWriter<>();
         itemWriter.setDataSource(dataSource);
-        itemWriter.setSql(ChunkPersonItemWriter.INSERT_PERSON);
+        itemWriter.setSql(Util.SqlConstant.INSERT_PERSON);
         itemWriter.setItemSqlParameterSourceProvider(
                 new BeanPropertyItemSqlParameterSourceProvider<>());
         itemWriter.afterPropertiesSet();
         return itemWriter;
     }
 
+    @Primary
     @Bean(
             name = {
                 "stepChunkOne"
             })
-    public Step stepChunkOne(StepBuilderFactory stepBuilderFactory,
-            FlatFileItemReader<Person> personItemReader,
-            @Qualifier("personItemProcessor") ItemProcessor<Person, Person> personItemProcessor,
+    public Step stepChunkOne(FlatFileItemReader<Person> personItemReader,
             ItemWriter<Person> personItemWriter, TaskExecutor asyncTaskExecutor) {
         return stepBuilderFactory.get("stepChunkOne").<Person, Person> chunk(5)
                 .reader(personItemReader).processor(personItemProcessor).writer(personItemWriter)
                 .taskExecutor(asyncTaskExecutor).build();
     }
 
-    @Bean(
-            name = {
-                "flowChunk"
-            })
-    public Flow flowChunk(Step stepChunkOne) {
-        FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flowChunk");
-        flowBuilder.start(stepChunkOne).end();
-        return flowBuilder.build();
-    }
-
+    @Primary
     @Bean(
             name = {
                 "jobChunk"
             })
-    public Job jobChunk(JobBuilderFactory jobBuilderFactory, Step stepChunk) {
+    public Job jobChunk(Step stepChunk) {
         return jobBuilderFactory.get("jobChunk").start(stepChunk).build();
     }
 }

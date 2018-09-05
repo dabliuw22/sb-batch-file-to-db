@@ -15,7 +15,7 @@ import com.leysoft.model.Person;
 
 @Primary
 @Component(
-        value = "personItemProcessor")
+        value = "chunkPersonItemProcessor")
 public class ChunkPersonItemProcessor implements ItemProcessor<Person, Person> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChunkPersonItemProcessor.class);
