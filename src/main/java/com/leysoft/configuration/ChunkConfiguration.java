@@ -17,6 +17,7 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.validator.ValidatingItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -30,6 +31,10 @@ import com.leysoft.util.Util;
 
 @Configuration
 public class ChunkConfiguration {
+
+    @Value(
+            value = "${batch.file.path.chunk}")
+    private String path;
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
@@ -49,7 +54,7 @@ public class ChunkConfiguration {
     public FlatFileItemReader<Person> personItemReader() {
         FlatFileItemReader<Person> reader = new FlatFileItemReader<>();
         reader.setLinesToSkip(1);
-        reader.setResource(new ClassPathResource("data/input/persons.csv"));
+        reader.setResource(new ClassPathResource(path));
         DefaultLineMapper<Person> personLineMapper = new DefaultLineMapper<>();
         DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
         tokenizer.setNames("name", "birthday");

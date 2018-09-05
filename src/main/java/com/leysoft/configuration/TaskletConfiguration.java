@@ -24,6 +24,11 @@ public class TaskletConfiguration {
 
     @Autowired
     @Qualifier(
+            value = "taskletPersonReader")
+    private Tasklet taskletPersonReader;
+
+    @Autowired
+    @Qualifier(
             value = "taskletPersonProcessor")
     private Tasklet taskletPersonProcessor;
 
@@ -31,6 +36,14 @@ public class TaskletConfiguration {
     @Qualifier(
             value = "taskletPersonWriter")
     private Tasklet taskletPersonWriter;
+
+    @Bean(
+            name = {
+                "stepTaskletOne"
+            })
+    public Step stepTaskletOne() {
+        return stepBuilderFactory.get("stepTaskletOne").tasklet(taskletPersonReader).build();
+    }
 
     @Bean(
             name = {
@@ -52,9 +65,9 @@ public class TaskletConfiguration {
             name = {
                 "flowTasklet"
             })
-    public Flow flowTasklet(Step stepTaskletOne, Step stepTaskletTwo, Step stepTaskletThree) {
+    public Flow flowTasklet() {
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flowTasklet");
-        flowBuilder.start(stepTaskletOne).next(stepTaskletTwo).next(stepTaskletThree).end();
+        flowBuilder.start(stepTaskletOne()).next(stepTaskletTwo()).next(stepTaskletThree()).end();
         return flowBuilder.build();
     }
 

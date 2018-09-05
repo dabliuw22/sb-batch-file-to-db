@@ -25,6 +25,7 @@ repositories {
 
 
 dependencies {
+    compile('com.opencsv:opencsv:4.2')
 	compile('org.springframework.boot:spring-boot-starter-batch')
 	compile('org.springframework.boot:spring-boot-starter-jdbc')
 	compile('org.springframework.boot:spring-boot-starter-mail')

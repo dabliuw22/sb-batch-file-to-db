@@ -16,10 +16,10 @@ import org.springframework.stereotype.Service;
 import com.leysoft.service.inter.BatchService;
 
 @Service(
-        value = "chunkServiceImp")
-public class ChunkServiceImp implements BatchService {
+        value = "taskletServiceImp")
+public class TaskletServiceImp implements BatchService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChunkServiceImp.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskletServiceImp.class);
 
     @Autowired
     @Qualifier(
@@ -28,7 +28,7 @@ public class ChunkServiceImp implements BatchService {
 
     @Autowired
     @Qualifier(
-            value = "jobChunk")
+            value = "jobTasklet")
     private Job job;
 
     @Override

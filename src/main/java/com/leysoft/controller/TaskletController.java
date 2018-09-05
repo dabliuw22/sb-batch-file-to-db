@@ -12,22 +12,20 @@ import com.leysoft.service.inter.BatchService;
 
 @RestController
 @RequestMapping(
-        value = {
-            "/chunk"
-        })
-public class ChunkController {
+        value = "/tasklet")
+public class TaskletController {
 
     @Autowired
     @Qualifier(
-            value = "chunkServiceImp")
-    private BatchService chunkService;
+            value = "taskletServiceImp")
+    private BatchService taskletService;
 
     @GetMapping(
             value = {
                 "/run"
             })
     public ResponseEntity<String> run() {
-        chunkService.run();
+        taskletService.run();
         return ResponseEntity.ok("Ok");
     }
 }

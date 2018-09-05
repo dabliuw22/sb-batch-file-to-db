@@ -22,3 +22,9 @@ spring:
           auth: true
           starttls:
             enable: true
+
+batch:  
+  file:
+    path: 
+      chunk: data/input/chunk/persons.csv
+      tasklet: data/input/tasklet/persons.csv
