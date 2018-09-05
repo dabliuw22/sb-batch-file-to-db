@@ -1,10 +1,13 @@
 
 package com.leysoft.service.imple;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,7 +33,9 @@ public class ChunkServiceImp implements ChunkService {
     @Override
     public void run() {
         try {
-            jobLauncher.run(job, new JobParameters());
+            JobParameters jobParameters = new JobParametersBuilder()
+                    .addDate("jobParameters", new Date()).toJobParameters();
+            jobLauncher.run(job, jobParameters);
         } catch (Exception e) {
             LOGGER.error("error -> {}", e);
         }

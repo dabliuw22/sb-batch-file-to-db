@@ -8,11 +8,14 @@ import java.time.temporal.ChronoUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import com.leysoft.model.Person;
 
-@Component
+@Primary
+@Component(
+        value = "personItemProcessor")
 public class ChunkPersonItemProcessor implements ItemProcessor<Person, Person> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChunkPersonItemProcessor.class);

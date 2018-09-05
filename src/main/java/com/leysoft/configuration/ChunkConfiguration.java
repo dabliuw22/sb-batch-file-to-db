@@ -9,9 +9,6 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.launch.support.SimpleJobLauncher;
-import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
@@ -19,29 +16,20 @@ import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.batch.item.validator.ValidatingItemProcessor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.task.TaskExecutor;
 
 import com.leysoft.batch.chunk.ChunkPersonItemWriter;
+import com.leysoft.batch.validator.PersonValidator;
 import com.leysoft.mapper.PersonFieldSetMapper;
 import com.leysoft.model.Person;
 
 @Configuration
 public class ChunkConfiguration {
-
-    @Bean(
-            name = {
-                "asyncJobLauncher"
-            })
-    public JobLauncher asyncJobLauncher(JobRepository jobRepository,
-            TaskExecutor asyncTaskExecutor) {
-        SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
-        jobLauncher.setTaskExecutor(asyncTaskExecutor);
-        jobLauncher.setJobRepository(jobRepository);
-        return jobLauncher;
-    }
 
     @Bean(
             name = {
@@ -63,6 +51,17 @@ public class ChunkConfiguration {
 
     @Bean(
             name = {
+                "personValidatingItemProcessor"
+            })
+    public ValidatingItemProcessor<Person> personValidatingItemProcessor() {
+        ValidatingItemProcessor<Person> itemProcessor =
+                new ValidatingItemProcessor<>(new PersonValidator());
+        itemProcessor.setFilter(true);
+        return itemProcessor;
+    }
+
+    @Bean(
+            name = {
                 "personItemWriter"
             })
     public ItemWriter<Person> personItemWriter(DataSource dataSource) {
@@ -77,24 +76,24 @@ public class ChunkConfiguration {
 
     @Bean(
             name = {
-                "stepChunk"
+                "stepChunkOne"
             })
-    public Step stepChunk(StepBuilderFactory stepBuilderFactory,
+    public Step stepChunkOne(StepBuilderFactory stepBuilderFactory,
             FlatFileItemReader<Person> personItemReader,
-            ItemProcessor<Person, Person> personItemProcessor,
-            ItemWriter<Person> personItemWriter) {
-        return stepBuilderFactory.get("stepChunk").<Person, Person> chunk(2)
+            @Qualifier("personItemProcessor") ItemProcessor<Person, Person> personItemProcessor,
+            ItemWriter<Person> personItemWriter, TaskExecutor asyncTaskExecutor) {
+        return stepBuilderFactory.get("stepChunkOne").<Person, Person> chunk(5)
                 .reader(personItemReader).processor(personItemProcessor).writer(personItemWriter)
-                .build();
+                .taskExecutor(asyncTaskExecutor).build();
     }
 
     @Bean(
             name = {
                 "flowChunk"
             })
-    public Flow flowChunk(Step stepChunk) {
+    public Flow flowChunk(Step stepChunkOne) {
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("flowChunk");
-        flowBuilder.start(stepChunk).end();
+        flowBuilder.start(stepChunkOne).end();
         return flowBuilder.build();
     }
 
@@ -102,7 +101,7 @@ public class ChunkConfiguration {
             name = {
                 "jobChunk"
             })
-    public Job jobChunk(JobBuilderFactory jobBuilderFactory, Flow flowChunk) {
-        return jobBuilderFactory.get("jobChunk").start(flowChunk).end().build();
+    public Job jobChunk(JobBuilderFactory jobBuilderFactory, Step stepChunk) {
+        return jobBuilderFactory.get("jobChunk").start(stepChunk).build();
     }
 }
