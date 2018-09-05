@@ -1,3 +1,4 @@
+
 package com.leysoft.configuration;
 
 import javax.sql.DataSource;
@@ -11,8 +12,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 @Configuration
 public class DatabaseConfiguration {
-	
-	@Value(
+
+    @Value(
             value = "${spring.datasource.username}")
     private String username;
 
@@ -41,9 +42,9 @@ public class DatabaseConfiguration {
     public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
-    
+
     @Bean
     public NamedParameterJdbcTemplate namedParameterJdbcTemplate(DataSource dataSource) {
-    	return new NamedParameterJdbcTemplate(dataSource);
+        return new NamedParameterJdbcTemplate(dataSource);
     }
 }

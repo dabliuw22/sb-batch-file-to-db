@@ -1,3 +1,4 @@
+
 package com.leysoft.configuration;
 
 import javax.sql.DataSource;
@@ -26,52 +27,66 @@ import com.leysoft.model.Person;
 
 @Configuration
 public class ChunkConfiguration {
-	
-	@Bean(name = {"asyncJobLauncher"})
-	public JobLauncher asyncJobLauncher(JobRepository jobRepository, 
-			TaskExecutor asyncTaskExecutor) {
-		SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
-		jobLauncher.setTaskExecutor(asyncTaskExecutor);
-		jobLauncher.setJobRepository(jobRepository);
-		return jobLauncher;
-	}
-	
-	@Bean(name = {"personItemReader"})
-	public FlatFileItemReader<Person> personItemReader() {
-		FlatFileItemReader<Person> reader = new FlatFileItemReader<>();
-		reader.setLinesToSkip(1);
-		reader.setResource(new ClassPathResource("data/input/persons.csv"));
-		DefaultLineMapper<Person> personLineMapper = new DefaultLineMapper<>();
-		DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-		tokenizer.setNames("name", "birthday");
-		personLineMapper.setLineTokenizer(tokenizer);
-		personLineMapper.setFieldSetMapper(new PersonFieldSetMapper());
-		personLineMapper.afterPropertiesSet();
-		reader.setLineMapper(personLineMapper);
-		return reader;
-	}
-	
-	@Bean(name = {"personItemWriter"})
-	public ItemWriter<Person> personItemWriter(DataSource dataSource) {
-		JdbcBatchItemWriter<Person> itemWriter = new JdbcBatchItemWriter<>();
-		itemWriter.setDataSource(dataSource);
-		itemWriter.setSql(ChunkPersonItemWriter.INSERT_PERSON);
-		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>());
-		itemWriter.afterPropertiesSet();
-		return itemWriter;
-	}
-	
-	@Bean(name = {"stepChunk"})
-	public Step stepChunk(StepBuilderFactory stepBuilderFactory, 
-			FlatFileItemReader<Person> personItemReader, ItemWriter<Person> personItemWriter) {
-		return stepBuilderFactory.get("stepChunk").<Person, Person>chunk(2)
-				.reader(personItemReader)
-				.writer(personItemWriter).build();
-	}
-	
-	@Bean(name = {"jobChunk"})
-	public Job jobChunk(JobBuilderFactory jobBuilderFactory, Step step) {
-		return jobBuilderFactory.get("jobChunk")
-				.start(step).build();
-	}
+
+    @Bean(
+            name = {
+                "asyncJobLauncher"
+            })
+    public JobLauncher asyncJobLauncher(JobRepository jobRepository,
+            TaskExecutor asyncTaskExecutor) {
+        SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
+        jobLauncher.setTaskExecutor(asyncTaskExecutor);
+        jobLauncher.setJobRepository(jobRepository);
+        return jobLauncher;
+    }
+
+    @Bean(
+            name = {
+                "personItemReader"
+            })
+    public FlatFileItemReader<Person> personItemReader() {
+        FlatFileItemReader<Person> reader = new FlatFileItemReader<>();
+        reader.setLinesToSkip(1);
+        reader.setResource(new ClassPathResource("data/input/persons.csv"));
+        DefaultLineMapper<Person> personLineMapper = new DefaultLineMapper<>();
+        DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
+        tokenizer.setNames("name", "birthday");
+        personLineMapper.setLineTokenizer(tokenizer);
+        personLineMapper.setFieldSetMapper(new PersonFieldSetMapper());
+        personLineMapper.afterPropertiesSet();
+        reader.setLineMapper(personLineMapper);
+        return reader;
+    }
+
+    @Bean(
+            name = {
+                "personItemWriter"
+            })
+    public ItemWriter<Person> personItemWriter(DataSource dataSource) {
+        JdbcBatchItemWriter<Person> itemWriter = new JdbcBatchItemWriter<>();
+        itemWriter.setDataSource(dataSource);
+        itemWriter.setSql(ChunkPersonItemWriter.INSERT_PERSON);
+        itemWriter.setItemSqlParameterSourceProvider(
+                new BeanPropertyItemSqlParameterSourceProvider<>());
+        itemWriter.afterPropertiesSet();
+        return itemWriter;
+    }
+
+    @Bean(
+            name = {
+                "stepChunk"
+            })
+    public Step stepChunk(StepBuilderFactory stepBuilderFactory,
+            FlatFileItemReader<Person> personItemReader, ItemWriter<Person> personItemWriter) {
+        return stepBuilderFactory.get("stepChunk").<Person, Person> chunk(2)
+                .reader(personItemReader).writer(personItemWriter).build();
+    }
+
+    @Bean(
+            name = {
+                "jobChunk"
+            })
+    public Job jobChunk(JobBuilderFactory jobBuilderFactory, Step step) {
+        return jobBuilderFactory.get("jobChunk").start(step).build();
+    }
 }

@@ -1,42 +1,43 @@
+
 package com.leysoft.model;
 
 import java.io.Serializable;
 import java.util.Date;
 
 public class Person implements Serializable {
-	
-	private static final long serialVersionUID = 1L;
-	
-	private String name;
-	
-	private Date birthday;
 
-	public Person() {
-	}
+    private static final long serialVersionUID = 1L;
 
-	public Person(String name, Date birthday) {
-		this.name = name;
-		this.birthday = birthday;
-	}
+    private String name;
 
-	public String getName() {
-		return name;
-	}
+    private Date birthday;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public Person() {
+    }
 
-	public Date getBirthday() {
-		return birthday;
-	}
+    public Person(String name, Date birthday) {
+        this.name = name;
+        this.birthday = birthday;
+    }
 
-	public void setBirthday(Date birthday) {
-		this.birthday = birthday;
-	}
+    public String getName() {
+        return name;
+    }
 
-	@Override
-	public String toString() {
-		return "Person [name=" + name + ", birthday=" + birthday + "]";
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
+    @Override
+    public String toString() {
+        return "Person [name=" + name + ", birthday=" + birthday + "]";
+    }
 }

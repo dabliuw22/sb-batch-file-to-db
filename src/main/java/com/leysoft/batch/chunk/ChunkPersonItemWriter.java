@@ -1,3 +1,4 @@
+
 package com.leysoft.batch.chunk;
 
 import java.util.List;
@@ -13,24 +14,25 @@ import org.springframework.stereotype.Component;
 
 import com.leysoft.model.Person;
 
-@Component(value = "chunkPersonItemWriter")
+@Component(
+        value = "chunkPersonItemWriter")
 public class ChunkPersonItemWriter implements ItemWriter<Person> {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ChunkPersonItemWriter.class);
-	
-	public static final String INSERT_PERSON = "insert into persons(name, birthday) values (:name, :birthday)";
-	
-	@Autowired
-	private NamedParameterJdbcTemplate jdbcTemplate;
 
-	@Override
-	public void write(List<? extends Person> items) throws Exception {
-		items.forEach(person -> {
-			LOGGER.info("person -> {}", person);
-			SqlParameterSource parameters = new MapSqlParameterSource()
-					.addValue("name", person.getName())
-					.addValue("birthday", person.getBirthday());
-			jdbcTemplate.update(INSERT_PERSON, parameters);
-		});
-	}
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChunkPersonItemWriter.class);
+
+    public static final String INSERT_PERSON =
+            "insert into persons(name, birthday) values (:name, :birthday)";
+
+    @Autowired
+    private NamedParameterJdbcTemplate jdbcTemplate;
+
+    @Override
+    public void write(List<? extends Person> items) throws Exception {
+        items.forEach(person -> {
+            LOGGER.info("person -> {}", person);
+            SqlParameterSource parameters = new MapSqlParameterSource()
+                    .addValue("name", person.getName()).addValue("birthday", person.getBirthday());
+            jdbcTemplate.update(INSERT_PERSON, parameters);
+        });
+    }
 }
